@@ -1,7 +1,7 @@
 import numpy as np
 
 # Enter an expression to compute and set th to the optimal theta
-th = np.linalg.inv((X@np.transpose(X)))@X@np.transpose(Y)
+# th = np.linalg.inv((X@np.transpose(X)))@X@np.transpose(Y)
 
 def d_lin_reg_th(x, th, th0):
     """
@@ -27,7 +27,7 @@ def d_square_loss_th(x, y, th, th0):
     This function should be a one-line expression that uses lin_reg and
     d_lin_reg_th.
     """
-    return 2*(lin_reg(x, th, th0)-y)*(d_lin_reg_th(x, th, th0))
+    return 2*(d_lin_reg_th(x, th, th0)-y)*(d_lin_reg_th(x, th, th0))
 
 def d_mean_square_loss_th(x, y, th, th0):
     """
@@ -65,7 +65,7 @@ def d_square_loss_th0(x, y, th, th0):
     This function should be a one-line expression that uses lin_reg and
     d_lin_reg_th0.
     """
-    return -2*(y-lin_reg(x, th, th0))*d_lin_reg_th0(x, th, th0)
+    return -2*(y-d_lin_reg_th0(x, th, th0))*d_lin_reg_th0(x, th, th0)
 
 def d_mean_square_loss_th0(x, y, th, th0):
     """
