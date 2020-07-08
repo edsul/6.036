@@ -118,40 +118,40 @@ interactive_fn=None):
     return q
 
     class NNQ:
-    def __init__(self, states, actions, state2vec, num_layers, num_units, lr=1e-2, epochs=1):
-        self.actions = actions
-        self.states = states
-        self.state2vec = state2vec
-        self.epochs = epochs
-        self.lr = lr
-        state_dim = state2vec(states[0]).shape[1] # a row vector
-        self.models = {a : make_nn(state_dim, num_layers, num_units)for a in actions}
-        # Your code here
-        self.running_loss = 0.
-        self.running_one = 0.
-        self.num_running = 0.001
-    def predict(self, model, s):
-      return model(torch.FloatTensor(self.state2vec(s))).detach().numpy()
-    def get(self, s, a):
-        return self.predict(self.models[a],s)
-    def fit(self, model, X,Y, epochs=None, dbg=None):
-      if epochs is None: epochs = self.epochs
-      train = torch.utils.data.TensorDataset(torch.FloatTensor(X), torch.FloatTensor(Y))
-      train_loader = torch.utils.data.DataLoader(train, batch_size=256,shuffle=True)
-      opt = torch.optim.SGD(model.parameters(), lr=self.lr)
-      for epoch in range(epochs):
-        for (X,Y) in train_loader:
-          opt.zero_grad()
-          loss = torch.nn.MSELoss()(model(X), Y)
-          loss.backward()
-          self.running_loss = self.running_loss*(1.-self.num_running) + loss.item()*self.num_running
-          self.running_one = self.running_one*(1.-self.num_running) + self.num_running
-          opt.step()
-      if dbg is True or (dbg is None and np.random.rand()< (0.001*X.shape[0])):
-        print('Loss running average: ', self.running_loss/self.running_one)
-    def update(self, data, lr, dbg=None):
-        for a in self.actions:
-          if [s for (s,at,t) in data if a==at]:
-            X = np.vstack([self.state2vec(s) for (s, at, t) in data if a==at])
-            Y = np.vstack([t for (s, at, t) in data if a==at])
-            self.fit(self.models[a],X,Y, epochs=self.epochs, dbg=dbg)
+        def __init__(self, states, actions, state2vec, num_layers, num_units, lr=1e-2, epochs=1):
+            self.actions = actions
+            self.states = states
+            self.state2vec = state2vec
+            self.epochs = epochs
+            self.lr = lr
+            state_dim = state2vec(states[0]).shape[1] # a row vector
+            self.models = {a : make_nn(state_dim, num_layers, num_units)for a in actions}
+            # Your code here
+            self.running_loss = 0.
+            self.running_one = 0.
+            self.num_running = 0.001
+        def predict(self, model, s):
+          return model(torch.FloatTensor(self.state2vec(s))).detach().numpy()
+        def get(self, s, a):
+            return self.predict(self.models[a],s)
+        def fit(self, model, X,Y, epochs=None, dbg=None):
+          if epochs is None: epochs = self.epochs
+          train = torch.utils.data.TensorDataset(torch.FloatTensor(X), torch.FloatTensor(Y))
+          train_loader = torch.utils.data.DataLoader(train, batch_size=256,shuffle=True)
+          opt = torch.optim.SGD(model.parameters(), lr=self.lr)
+          for epoch in range(epochs):
+            for (X,Y) in train_loader:
+              opt.zero_grad()
+              loss = torch.nn.MSELoss()(model(X), Y)
+              loss.backward()
+              self.running_loss = self.running_loss*(1.-self.num_running) + loss.item()*self.num_running
+              self.running_one = self.running_one*(1.-self.num_running) + self.num_running
+              opt.step()
+          if dbg is True or (dbg is None and np.random.rand()< (0.001*X.shape[0])):
+            print('Loss running average: ', self.running_loss/self.running_one)
+        def update(self, data, lr, dbg=None):
+            for a in self.actions:
+              if [s for (s,at,t) in data if a==at]:
+                X = np.vstack([self.state2vec(s) for (s, at, t) in data if a==at])
+                Y = np.vstack([t for (s, at, t) in data if a==at])
+                self.fit(self.models[a],X,Y, epochs=self.epochs, dbg=dbg)
